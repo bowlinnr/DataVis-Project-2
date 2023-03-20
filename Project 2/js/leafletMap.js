@@ -65,6 +65,7 @@ class LeafletMap {
                         //Leaflet has to take control of projecting points. Here we are feeding the latitude and longitude coordinates to
                         //leaflet so that it can project them on the coordinates of the view. Notice, we have to reverse lat and lon.
                         //Finally, the returned conversion produces an x and y point. We have to select the the desired one using .x or .y
+                        
                         .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
                         .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
                         .attr("r", 3)
@@ -79,7 +80,11 @@ class LeafletMap {
                                 .style('opacity', 1)
                                 .style('z-index', 1000000)
                                   // Format number with million and thousand separator
-                                .html(`<div class="tooltip-label">City: ${d.city}, population ${d3.format(',')(d.population)}</div>`);
+                                .html(`<div class="tooltip-label">Call Date: ${d.requested_date}<br>
+                                Updated Date: ${d.updated_date}<br>
+                                Agency Responsible: ${d.agency_responsible}<br>
+                                Type of Call: ${d.service_name}<br>
+                                Descriptive Information: ${d.description}</div>`);
 
                           })
                         .on('mousemove', (event) => {
@@ -107,9 +112,8 @@ class LeafletMap {
     //handler here for updating the map, as you zoom in and out           
     vis.theMap.on("zoomend", function(){
       vis.updateVis();
-      console.log("Ending initVis")
     });
-
+    console.log("Ending initVis")
   }
 
   updateVis() {
@@ -130,10 +134,12 @@ class LeafletMap {
    
    //redraw based on new zoom- need to recalculate on-screen position
     vis.Dots
+      //.attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
+      //.attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
       .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
-      .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
-      .attr("r", vis.radiusSize) ;
-    console.log("Ending updateVis")
+      .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
+      .attr("r", vis.radiusSize);
+    console.log("Ending updateVis");
   }
 
 
