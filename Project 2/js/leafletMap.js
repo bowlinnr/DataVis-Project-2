@@ -43,7 +43,7 @@ class LeafletMap {
       ext: 'png'
     });
 
-    vis.theMap = L.map('my-map', {
+    vis.theMap = L.map('map', {
       center: [39.103119, -84.512016], //39.103119, -84.512016
       zoom: 11,
       layers: [vis.base_layer]
