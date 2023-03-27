@@ -1,4 +1,4 @@
-d3.dsv("|","data/cincy311_cleaned.tsv")
+d3.dsv("|","data/cincy311_cleaned_2021.tsv")
 .then(data => {
   leafletMap = new LeafletMap({ parentElement: '#map'}, data);
 

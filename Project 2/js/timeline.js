@@ -142,11 +142,14 @@ class Timeline {
         .attr('d', vis.line); 
 
     vis.trackingArea
-        .on('mouseenter', () => {
+        .on('mouseenter', (event, d) => {
         vis.tooltip.style('display', 'block');
-        })
-        .on('mouseleave', () => {
+
+    })      
+        .on('mouseleave', (event, d) => {
         vis.tooltip.style('display', 'none');
+        vis.tooltip.style('left', (event.pageX) + 'px');   
+        vis.tooltip.style('top', (event.pageY) + 'px');
         })
         .on('mousemove', function(event) {
         // Get date that corresponds to current mouse x-coordinate
@@ -158,7 +161,6 @@ class Timeline {
         const a = vis.timelineData[index - 1];
         const b = vis.timelineData[index];
         const d = b && (date - a.date > b.date - date) ? b : a; 
-        console.log(d);
         // Update tooltip
         vis.tooltip.select('circle')
             .attr('transform', `translate(${vis.xScale(d.date)},${vis.yScale(d.count)})`);
