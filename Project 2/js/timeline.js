@@ -193,7 +193,7 @@ class Timeline {
         });
       }
 
-    console.log(dataList);
+    //console.log(dataList);
     return dataList;
   }
   
