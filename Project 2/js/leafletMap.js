@@ -37,6 +37,24 @@ class LeafletMap {
     vis.stUrl = 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}';
     vis.stAttr = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
+    // Dictionary to map service names to colors
+    vis.service_name_dict = {
+        "metal": "#E9F00C",
+        "trash": "#F01D0C",
+        "building": "#F47E01",
+        "default": "#8FF100",
+        "grasstree": "#02E109",
+        "pothole": "#00D591",
+        "litter": "#00D4BD",
+        "yard": "#00BFFC",
+        "recycle": "#0063FC",
+        "sign" : "#000087",
+        "sidewalk": "#9900F7",
+        "tire": "#CD8EF4",
+        "animal": "#F1A8FE",
+        "other": "#F900C1",
+    };
+
     //this is the base map layer, where we are showing the map background
     vis.base_layer = L.tileLayer(vis.esriUrl, {
       id: 'esri-image',
@@ -85,30 +103,12 @@ class LeafletMap {
       });
 
     function color_by_service_name(sn) {
-      var dict = {
-        "metal": "#E9F00C",
-        "trash": "#F01D0C",
-        "building": "#F47E01",
-        "default": "#8FF100",
-        "grasstree": "#02E109",
-        "pothole": "#00D591",
-        "litter": "#00D4BD",
-        "yard": "#00BFFC",
-        "recycle": "#0063FC",
-        "sign" : "#000087",
-        "sidewalk": "#9900F7",
-        "tire": "#CD8EF4",
-        "animal": "#F1A8FE",
-        "other": "#F900C1",
-      };
-
-      for (const [key, value] of Object.entries(dict)) {
+      for (const [key, value] of Object.entries(vis.service_name_dict)) {
         if (sn.toUpperCase().includes(key.toUpperCase())) {
-          return dict[key];
+          return vis.service_name_dict[key];
         }
       }
-
-      return dict["other"];
+      return vis.service_name_dict["other"];
     }
 
     function color_by_agency(a) {
@@ -293,7 +293,20 @@ class LeafletMap {
       .enter()
       .append('option')
       .text(d => d);
-  
+
+    // Add a legend to the map
+    vis.legend = L.control({ position: "topright" });
+    vis.legend.onAdd = function(map) {
+        var div = L.DomUtil.create("div", "legend");
+        div.innerHTML += "<h4>Legend</h4>";
+        for (const [key, value] of Object.entries(vis.service_name_dict)) {
+          var name = key.charAt(0).toUpperCase() + key.slice(1);
+          div.innerHTML += `<i style="background: ${value}"></i><span>${name}</span><br>`;
+        }
+        return div;
+    };
+
+    vis.legend.addTo(vis.theMap);
   }
 
   updateVis() {
