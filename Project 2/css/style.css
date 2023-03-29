@@ -1,3 +1,7 @@
+html {
+  font-family: sans-serif;
+}
+
 #tooltip {
   position: absolute;
   opacity: 0;

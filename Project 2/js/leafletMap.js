@@ -55,6 +55,26 @@ class LeafletMap {
         "other": "#F900C1",
     };
 
+    vis.agency_dict = {
+        "Cin Water Works": "#E9F00C",
+        "Cinc Building Dept": "#F01D0C",
+        "Cinc Health Dept": "#F47E01",
+        "Cincinnati Recreation": "#8FF100",
+        "City Manager's Office": "#02E109",
+        "Community Development": "#00D591",
+        "Dept of Trans and Eng": "#00D4BD",
+        "Enterprise Services": "#00BFFC",
+        "Fire Department": "#0063FC",
+        "Fire Dept" : "#000087",
+        "Law Department": "#9900F7",
+        "Metropolitan Sewer": "#CD8EF4",
+        "Park Department": "#F1A8FE",
+        "Police Department": "#F900C1",
+        "Public Services": "#92F1A5",
+        "Regional Computer Center": "#660E25",
+        "Treasury Department": "#9D4F4F"
+    };
+
     //this is the base map layer, where we are showing the map background
     vis.base_layer = L.tileLayer(vis.esriUrl, {
       id: 'esri-image',
@@ -112,26 +132,7 @@ class LeafletMap {
     }
 
     function color_by_agency(a) {
-      var dict = {
-        "Cin Water Works": "#E9F00C",
-        "Cinc Building Dept": "#F01D0C",
-        "Cinc Health Dept": "#F47E01",
-        "Cincinnati Recreation": "#8FF100",
-        "City Manager's Office": "#02E109",
-        "Community Development": "#00D591",
-        "Dept of Trans and Eng": "#00D4BD",
-        "Enterprise Services": "#00BFFC",
-        "Fire Department": "#0063FC",
-        "Fire Dept" : "#000087",
-        "Law Department": "#9900F7",
-        "Metropolitan Sewer": "#CD8EF4",
-        "Park Department": "#F1A8FE",
-        "Police Department": "#F900C1",
-        "Public Services": "#92F1A5",
-        "Regional Computer Center": "#660E25",
-        "Treasury Department": "#9D4F4F"
-      };
-      return dict[a]
+      return vis.agency_dict[a]
     }
 
     var requestDateColorScale = d3.scaleSequential()
@@ -173,7 +174,7 @@ class LeafletMap {
       
     }
 
-    //these are the city locations, displayed as a set of dots 
+    //these are the city locations, displayed as a set of dots
     vis.Dots = vis.svg.selectAll('circle')
                     .data(vis.data) 
                     .join('circle')
@@ -231,7 +232,27 @@ class LeafletMap {
     .style("top", "515px")
     .append('label')
     .text('Color By: ');
-    
+
+    // Create a legend
+    vis.legend = L.control({ position: "topright" });
+
+    // Function that recolors the legend when the coloring is changed
+    function recolor_legend(title, dict) {
+      vis.legend.remove(vis.theMap)
+      vis.legend.onAdd = function(map) {
+          var div = L.DomUtil.create("div", "legend");
+          div.innerHTML += `<h4>${title}</h4>`;
+          for (const [key, value] of Object.entries(dict)) {
+            var name = key.charAt(0).toUpperCase() + key.slice(1);
+            div.innerHTML += `<i style="background: ${value}"></i><span>${name}</span><br>`;
+          }
+          return div;
+      };
+      vis.legend.addTo(vis.theMap);
+    }
+
+    recolor_legend("Service Name", vis.service_name_dict)
+
     vis.colorBySelect = d3.select('#colorBy')
       .append('select')
       .on('change', function () {
@@ -246,6 +267,7 @@ class LeafletMap {
 
               d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
             })
+          recolor_legend("Service Name", vis.service_name_dict)
         }
         else if (d3.select(this).property('value') == "Agency") {
           vis.Dots
@@ -258,6 +280,7 @@ class LeafletMap {
 
               d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
             })
+          recolor_legend("Agency", vis.agency_dict)
         }
         else if (d3.select(this).property('value') == "Called Date") {
           vis.Dots
@@ -270,6 +293,7 @@ class LeafletMap {
 
               d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
             })
+          vis.legend.remove(vis.theMap)
         }
         else {
           vis.Dots
@@ -282,6 +306,7 @@ class LeafletMap {
 
               d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
             })
+          vis.legend.remove(vis.theMap)
         }
 
 
@@ -293,20 +318,6 @@ class LeafletMap {
       .enter()
       .append('option')
       .text(d => d);
-
-    // Add a legend to the map
-    vis.legend = L.control({ position: "topright" });
-    vis.legend.onAdd = function(map) {
-        var div = L.DomUtil.create("div", "legend");
-        div.innerHTML += "<h4>Legend</h4>";
-        for (const [key, value] of Object.entries(vis.service_name_dict)) {
-          var name = key.charAt(0).toUpperCase() + key.slice(1);
-          div.innerHTML += `<i style="background: ${value}"></i><span>${name}</span><br>`;
-        }
-        return div;
-    };
-
-    vis.legend.addTo(vis.theMap);
   }
 
   updateVis() {
