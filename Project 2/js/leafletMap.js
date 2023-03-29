@@ -63,8 +63,8 @@ class LeafletMap {
       .text("Toggle Map Background")
       .style("position", "absolute")
       .style("z-index", "1000")
-      .style("left", "8px")
-      .style("top", "515px")
+      .style("left", "260px")
+      .style("top", "540px")
       .on('click',() => {
         if (vis.base_layer.options.id == 'esri-image') {
           vis.base_layer = L.tileLayer(vis.stUrl, {
@@ -188,27 +188,90 @@ class LeafletMap {
                              .style('left', (event.pageX + 10) + 'px')   
                               .style('top', (event.pageY + 10) + 'px');
                          })              
-                        .on('mouseleave', function() { //function to add mouseover event
-                            d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                              .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                              .attr("fill", d => color_by_service_name(d.service_name)) //change the fill
-                              .attr('r', 3) //change radius
+                        .on('mouseleave', function() {       
+                          d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                            .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                            .attr("fill", d => color_by_service_name(d.service_name)) //change the fill
+                            .attr('r', 3); //change radius
+            
+                          d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+                        });
 
-                            d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
-
-                          })
-                        .on('click', (event, d) => { //experimental feature I was trying- click on point and then fly to it
-                           // vis.newZoom = vis.theMap.getZoom()+2;
-                           // if( vis.newZoom > 18)
-                           //  vis.newZoom = 18; 
-                           // vis.theMap.flyTo([d.latitude, d.longitude], vis.newZoom);
-                          });
-    
     //handler here for updating the map, as you zoom in and out           
     vis.theMap.on("zoomend", function(){
       vis.updateVis();
     });
-    console.log("Ending initVis")
+
+    // Color by
+    d3.select("#colorBy")
+    .style("position", "absolute")
+    .style("left", "250px")
+    .style("top", "515px")
+    .append('label')
+    .text('Color By: ');
+    
+    vis.colorBySelect = d3.select('#colorBy')
+      .append('select')
+      .on('change', function () {
+        if (d3.select(this).property('value') == "Service Name") {
+          vis.Dots
+            .attr('fill', d => color_by_service_name(d.service_name))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => color_by_service_name(d.service_name)) //change the fill
+                .attr('r', 3); //change radius
+
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+        }
+        else if (d3.select(this).property('value') == "Agency") {
+          vis.Dots
+            .attr('fill', d => color_by_agency(d.agency_responsible))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => color_by_agency(d.agency_responsible)) //change the fill
+                .attr('r', 3); //change radius
+
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+        }
+        else if (d3.select(this).property('value') == "Called Date") {
+          vis.Dots
+            .attr('fill', d => color_by_request_date(d.requested_datetime))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => color_by_agency(d.requested_datetime)) //change the fill
+                .attr('r', 3); //change radius
+
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+        }
+        else {
+          vis.Dots
+            .attr('fill', d => color_by_response_time(d))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => color_by_response_time(d)) //change the fill
+                .attr('r', 3); //change radius
+
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+        }
+
+
+      });
+    
+    var options = ["Service Name", "Agency", "Called Date", "Response Time"]
+    vis.colorBySelect.selectAll('option')
+      .data(options)
+      .enter()
+      .append('option')
+      .text(d => d);
+  
   }
 
   updateVis() {

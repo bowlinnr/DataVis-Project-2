@@ -9,11 +9,3 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
   timeline = new Timeline({ parentElement: '#timeline'}, data)
   })
   .catch(error => console.error(error));
-
-
-  let selectedOption;
-        
-  function updateVariable() {
-    selectedOption = document.getElementById("colorBy").value;
-    console.log("Selected option: " + selectedOption);
-  } 

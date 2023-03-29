@@ -3,8 +3,8 @@ class Timeline {
     constructor(_config, _data) {
       this.config = {
         parentElement: _config.parentElement,
-        containerWidth: _config.containerWidth || 500,
-        containerHeight: _config.containerHeight || 400,
+        containerWidth: _config.containerWidth || 600,
+        containerHeight: _config.containerHeight || 500,
         margin: { top: 40, bottom: 60, right: 30, left: 60 }
       }
   
@@ -46,7 +46,7 @@ class Timeline {
         vis.svg = d3.select(vis.config.parentElement)
             .attr('width', vis.config.containerWidth)
             .attr('height', vis.config.containerHeight)
-            .attr('transform', `translate(825, -450)`);
+            .attr('transform', `translate(825, -470)`);
 
         vis.chart = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left}, ${vis.config.margin.top})`);
@@ -69,15 +69,15 @@ class Timeline {
         
         vis.chart.append("text")
             .attr("y", vis.height + vis.config.margin.bottom)
-            .attr("x", (vis.width + vis.config.margin.left) / 2)
+            .attr("x", (vis.width + vis.config.margin.right) / 2)
             .attr("text-anchor", "end")
             .attr("font-size", "15px")
             .text("Dates");
 
         vis.chart.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", vis.config.margin.top)
-            .attr("x", -(vis.config.margin.right + vis.config.margin.left))
+            .attr("y", vis.config.margin.top - 10)
+            .attr("x", -(vis.config.margin.right + vis.config.margin.left + 20))
             .attr("dy", "-5.1em")
             .attr("text-anchor", "end")
             .attr("font-size", "15px")
