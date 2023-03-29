@@ -23,8 +23,6 @@ class Timeline {
         vis.yValue = d => d.count;
 
         vis.timelineData = vis.arrangeData(vis.data);
-
-        console.log(d3.extent(vis.timelineData, vis.xValue));
         
         vis.xScale = d3.scaleTime()
             .domain(d3.extent(vis.timelineData, vis.xValue))
@@ -180,11 +178,11 @@ class Timeline {
     var dataList = [];
 
     data.forEach(d => {
-        if (d['updated_datetime'] in dataDict) {
-            dataDict[d['updated_datetime']] += 1;
+        if (d['requested_datetime'] in dataDict) {
+            dataDict[d['requested_datetime']] += 1;
         } 
         else {
-            dataDict[d['updated_datetime']] = 1;
+            dataDict[d['requested_datetime']] = 1;
         }
     })
 
