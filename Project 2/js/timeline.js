@@ -19,7 +19,7 @@ class Timeline {
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
 
-        vis.xValue = d =>   d.date; 
+        vis.xValue = d => d.date; 
         vis.yValue = d => d.count;
 
         vis.timelineData = vis.arrangeData(vis.data);
@@ -164,8 +164,8 @@ class Timeline {
             .attr('transform', `translate(${vis.xScale(d.date)},${vis.yScale(d.count)})`);
         
         vis.tooltip.select('text')
-            .attr('transform', `translate(${vis.xScale(d.date)},${(vis.yScale(d.count) - 15)})`)
-            .text(Math.round(d.count));
+            .attr('transform', `translate(${30},${30})`)
+            .text("Date: " + d.date.getDate() + " " + d.date.toLocaleString('default', { month: 'long' }) + " " + d.date.getFullYear() + ", Number of Discoveries: " + Math.round(d.count));
         });
     
     vis.xAxisG.call(vis.xAxis);
