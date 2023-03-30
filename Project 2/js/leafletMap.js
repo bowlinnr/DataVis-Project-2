@@ -139,16 +139,38 @@ class LeafletMap {
       .domain(d3.extent(vis.data, d => new Date(d.requested_datetime)));
 
     var responseTimeColorScale = d3.scaleLog()
-      .range(["blue", "red"])
-      .domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
+      .range(["yellow", "yellow"])
+      //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
+      .domain([1, d3.max(vis.data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
+
+    var responseTimeColorScale2 = d3.scaleLog()
+      .range(["orange", "red"])
+      //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
+      .domain([1, d3.max(vis.data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
 
     function color_by_request_date(rd) {
       return requestDateColorScale(new Date(rd));
     }
 
     function color_by_response_time(t) {
-      var responseTime = new Date(t.updated_datetime) - new Date(t.requested_datetime);
-      return responseTimeColorScale(new Date(responseTime));
+      //var responseTime = new Date(t.updated_datetime) - new Date(t.requested_datetime);
+      var responseTimeMs = Math.abs((new Date(t.updated_datetime)) - (new Date(t.requested_datetime)));
+      var responseTimeDays = Math.floor(responseTimeMs / (1000 * 60 * 60 * 24));
+      if(responseTimeDays == 0){
+        return responseTimeColorScale(responseTimeDays);
+      }
+      else{
+        //console.log("Dates:");
+        //console.log(new Date(t.updated_datetime));
+        //console.log(new Date(t.requested_datetime));
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        console.log("Response Time in Ms:");
+        console.log(responseTimeMs)
+        console.log("Response Time in Days:");
+        console.log(responseTimeDays);
+        return responseTimeColorScale2(responseTimeDays);
+      }
+      
     }
 
     //these are the city locations, displayed as a set of dots 
