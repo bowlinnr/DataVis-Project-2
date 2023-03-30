@@ -183,10 +183,13 @@ class LeafletMap {
       vis.called_date_dict[date] = requestDateColorScale(timestamp)
     }
 
+    // Create dictionary for response time legend
     vis.response_time_dict = {}
     num_quantiles = 10
     for (let i = 0; i < num_quantiles; i++) {
-      let num_days = Math.floor(d3.quantile(vis.data, (i/(num_quantiles-1)), d => (new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24))
+      let time_diff = d => (new Date(d.updated_datetime)) - (new Date(d.requested_datetime))
+      let num_ms = d3.quantile(vis.data, (i/(num_quantiles-1)), time_diff)
+      let num_days = Math.floor(num_ms / (1000 * 60 * 60 * 24))
       if (num_days < 0) {
         continue
       }
@@ -307,7 +310,7 @@ class LeafletMap {
             .on('mouseleave', function() {
               d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                 .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                .attr("fill", d => color_by_agency(d.requested_datetime)) //change the fill
+                .attr("fill", d => color_by_request_date(d.requested_datetime)) //change the fill
                 .attr('r', 3); //change radius
 
               d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
