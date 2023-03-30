@@ -139,6 +139,16 @@ class LeafletMap {
       .interpolator(d3.interpolateGreys) 
       .domain(d3.extent(vis.data, d => new Date(d.requested_datetime)));
 
+    // Create dictionary for request date legend
+    vis.called_date_dict = {}
+    let num_quantiles = 8
+    for (let i = 0; i < num_quantiles; i++) {
+      let timestamp = d3.quantile(vis.data, (i/(num_quantiles-1)), d => new Date(d.requested_datetime))
+      let date = (new Date(timestamp)).toLocaleDateString("en-US")
+      vis.called_date_dict[date] = requestDateColorScale(timestamp)
+    }
+
+
     var responseTimeColorScale = d3.scaleLog()
       .range(["yellow", "yellow"])
       //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
