@@ -49,3 +49,7 @@ path.line {
   text-align: center;
   margin: 0 4px 6px 4px;
 }
+
+#timeline {
+  background-color: #30D5C8;
+}
