@@ -139,16 +139,6 @@ class LeafletMap {
       .interpolator(d3.interpolateGreys) 
       .domain(d3.extent(vis.data, d => new Date(d.requested_datetime)));
 
-    // Create dictionary for request date legend
-    vis.called_date_dict = {}
-    let num_quantiles = 8
-    for (let i = 0; i < num_quantiles; i++) {
-      let timestamp = d3.quantile(vis.data, (i/(num_quantiles-1)), d => new Date(d.requested_datetime))
-      let date = (new Date(timestamp)).toLocaleDateString("en-US")
-      vis.called_date_dict[date] = requestDateColorScale(timestamp)
-    }
-
-
     var responseTimeColorScale = d3.scaleLog()
       .range(["yellow", "yellow"])
       //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
@@ -182,6 +172,25 @@ class LeafletMap {
         return responseTimeColorScale2(responseTimeDays);
       }
       
+    }
+
+    // Create dictionary for request date legend
+    vis.called_date_dict = {}
+    let num_quantiles = 8
+    for (let i = 0; i < num_quantiles; i++) {
+      let timestamp = d3.quantile(vis.data, (i/(num_quantiles-1)), d => new Date(d.requested_datetime))
+      let date = (new Date(timestamp)).toLocaleDateString("en-US")
+      vis.called_date_dict[date] = requestDateColorScale(timestamp)
+    }
+
+    vis.response_time_dict = {}
+    num_quantiles = 10
+    for (let i = 0; i < num_quantiles; i++) {
+      let num_days = Math.floor(d3.quantile(vis.data, (i/(num_quantiles-1)), d => (new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24))
+      if (num_days < 0) {
+        continue
+      }
+      vis.response_time_dict[num_days] = responseTimeColorScale2(num_days)
     }
 
     //these are the city locations, displayed as a set of dots
@@ -316,7 +325,7 @@ class LeafletMap {
 
               d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
             })
-          vis.legend.remove(vis.theMap)
+          recolor_legend("Response Time (days)", vis.response_time_dict)
         }
 
 
