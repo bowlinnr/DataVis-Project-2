@@ -166,6 +166,10 @@ class Timeline {
         .y1(d => vis.yScaleContext(vis.yValue(d)))
         .y0(vis.config.contextHeight);
 
+    vis.line2 = d3.line()
+        .x(d => vis.xScaleContext(vis.xValue(d)))
+        .y(d => vis.yScaleContext(vis.yValue(d)));
+
     // vis.xScaleContext.domain(vis.xScale.domain());
     // vis.yScaleContext.domain(vis.yScale.domain());
         
@@ -185,9 +189,14 @@ class Timeline {
         .attr('stroke-width', 2)
         .attr('d', vis.line); 
 
-    // vis.contextAreaPath
-    //     .data(vis.timelineData)
-    //     .attr('d', vis.area);
+     vis.contextAreaPath
+         //.data([vis.timelineData])
+         //.attr('d', vis.area);
+        .data([vis.timelineData])
+        .join('path')
+        .attr('class', 'line')
+        .attr('stroke-width', 2)
+        .attr('d', vis.line2); 
 
     vis.trackingArea
         .on('mouseenter', (event, d) => {
