@@ -49,3 +49,19 @@ path.line {
   text-align: center;
   margin: 0 4px 6px 4px;
 }
+
+#barchart-tooltip {
+  position: absolute;
+  display: none;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.bar {
+  shape-rendering: crispEdges;
+}
+.bar:hover,
+.bar.active {
+  stroke: #000;
+}
