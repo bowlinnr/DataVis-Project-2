@@ -67,15 +67,17 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
   // Bar chart for displaying zipcodes
   zipcodes = new BarChart({
     parentElement: "#zipcodes",
-    xAxisLabel: "Zipcodes",
+    xAxisLabel: "Zipcode",
     yAxisLabel: "Number of Calls",
     title: "Calls by Zipcode",
     xAxisLambda: (d) => {
-      return top_zipcodes.has(+d['zipcode']) ? Math.trunc(+d['zipcode']) : "other" 
+      return top_zipcodes.has(+d['zipcode']) ? Math.trunc(+d['zipcode']) : "Outside Cincinnati"
     },
     logScale: false,
     tiltTicks: true,
-    containerWidth: 660
+    containerWidth: 660,
+    margin: { top: 60, bottom: 80, right: 20, left: 70 },
+    no_data_key: "Outside Cincinnati",
   },
   data
   );
