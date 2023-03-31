@@ -15,6 +15,11 @@ class BarChart {
     this.orderedKeys = _config.orderedKeys || [];
     this.tiltTicks = _config.tiltTicks;
     this.data = _data
+    this.logScale = _config.logScale;
+    this.orderedKeys = _config.orderedKeys || [];
+    this.tiltTicks = _config.tiltTicks;
+    this.data = _data;
+    this.no_data_key = _config.no_data_key || "No Data";
 
     this.initVis();
   }
@@ -126,10 +131,10 @@ class BarChart {
 
     if (vis.orderedKeys.length == 0) {
       vis.aggregatedData = vis.aggregatedData.sort((a, b) => {
-        if (a.key == "No Data") {
+        if (a.key == vis.no_data_key) {
           return 1;
         }
-        if (b.key == "No Data") {
+        if (b.key == vis.no_data_key) {
           return -1;
         }
         return b.count - a.count;
@@ -188,7 +193,6 @@ class BarChart {
       .attr("height", (d) => vis.height - vis.yScale(vis.yValue(d)))
       .attr("y", (d) => vis.yScale(vis.yValue(d)))
       .attr("fill", vis.fillLambda ?? "#4682B4");
-
     vis.xAxisGroup.call(vis.xAxis);
     vis.yAxisGroup.call(vis.yAxis);
   }
