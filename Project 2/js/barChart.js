@@ -52,7 +52,7 @@ class BarChart {
               .style("text-anchor", "end")
               .attr("dx", "-.8em")
               .attr("dy", "-.15em")
-              .attr("transform", "rotate(-20)")
+              .attr("transform", "rotate(-40)")
           );
     } else {
       vis.xAxis = d3.axisBottom(vis.xScale).tickSizeOuter(0);
@@ -86,7 +86,7 @@ class BarChart {
       .attr("class", "x label")
       .attr("text-anchor", "middle")
       .attr("x", vis.width * 0.5 + vis.config.margin.left)
-      .attr("y", vis.config.containerHeight - 9)
+      .attr("y", vis.config.containerHeight - 4)
       .text(vis.xAxisLabel);
 
     vis.svg
@@ -102,7 +102,7 @@ class BarChart {
     vis.svg
       .append("text")
       //.attr("transform", "translate(0,-70)")
-      .attr("x", vis.width/2)
+      .attr("x", vis.width/2 + vis.config.margin.left)
       .attr("y", 50)
       .attr("font-size", "15px")
       .attr("font-weight", "bold")

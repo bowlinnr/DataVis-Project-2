@@ -65,3 +65,21 @@ path.line {
 .bar.active {
   stroke: #000;
 }
+
+#zipcodes-container {
+  position: absolute;
+  top: 570px;
+  left: 0px;
+}
+
+#zipcode-link {
+  font-size: 12px;
+  position: relative;
+  top: 5px; right: 600px;
+}
+
+#weekdays {
+  position: absolute;
+  top: 570px;
+  left: 830px;
+}

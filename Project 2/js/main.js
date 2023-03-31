@@ -37,4 +37,48 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
   );
   weekdays.updateVis();
 
+
+  // Zipcode set to determine which zipcodes are just Cincinnati
+  let top_zipcodes = new Set([
+    45205,
+    45211,
+    45202,
+    45238,
+    45237,
+    45208,
+    45219,
+    45229,
+    45223,
+    45224,
+    45214,
+    45206,
+    45204,
+    45227,
+    45213,
+    45220,
+    45225,
+    45230,
+    45216,
+    45209,
+    45207,
+    45226
+  ]);
+
+  // Bar chart for displaying zipcodes
+  zipcodes = new BarChart({
+    parentElement: "#zipcodes",
+    xAxisLabel: "Zipcodes",
+    yAxisLabel: "Number of Calls",
+    title: "Calls by Zipcode",
+    xAxisLambda: (d) => {
+      return top_zipcodes.has(+d['zipcode']) ? Math.trunc(+d['zipcode']) : "other" 
+    },
+    logScale: false,
+    tiltTicks: true,
+    containerWidth: 660
+  },
+  data
+  );
+  zipcodes.updateVis();
+
   }).catch(error => console.error(error));
