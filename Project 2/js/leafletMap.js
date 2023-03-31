@@ -122,127 +122,7 @@ class LeafletMap {
         vis.theMap.addLayer(vis.base_layer);
       });
 
-    function color_by_service_name(sn) {
-      for (const [key, value] of Object.entries(vis.service_name_dict)) {
-        if (sn.toUpperCase().includes(key.toUpperCase())) {
-          return vis.service_name_dict[key];
-        }
-      }
-      return vis.service_name_dict["other"];
-    }
-
-    function color_by_agency(a) {
-      return vis.agency_dict[a]
-    }
-
-    var requestDateColorScale = d3.scaleSequential()
-      .interpolator(d3.interpolateGreys) 
-      .domain(d3.extent(vis.data, d => new Date(d.requested_datetime)));
-
-    var responseTimeColorScale = d3.scaleLog()
-      .range(["yellow", "yellow"])
-      //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
-      .domain([1, d3.max(vis.data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
-
-    var responseTimeColorScale2 = d3.scaleLog()
-      .range(["orange", "red"])
-      //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
-      .domain([1, d3.max(vis.data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
-
-    function color_by_request_date(rd) {
-      return requestDateColorScale(new Date(rd));
-    }
-
-    function color_by_response_time(t) {
-      //var responseTime = new Date(t.updated_datetime) - new Date(t.requested_datetime);
-      var responseTimeMs = Math.abs((new Date(t.updated_datetime)) - (new Date(t.requested_datetime)));
-      var responseTimeDays = Math.floor(responseTimeMs / (1000 * 60 * 60 * 24));
-      if(responseTimeDays == 0){
-        return responseTimeColorScale(responseTimeDays);
-      }
-      else{
-        //console.log("Dates:");
-        //console.log(new Date(t.updated_datetime));
-        //console.log(new Date(t.requested_datetime));
-        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        console.log("Response Time in Ms:");
-        console.log(responseTimeMs)
-        console.log("Response Time in Days:");
-        console.log(responseTimeDays);
-        return responseTimeColorScale2(responseTimeDays);
-      }
-      
-    }
-
-    // Create dictionary for request date legend
-    vis.called_date_dict = {}
-    let num_quantiles = 8
-    for (let i = 0; i < num_quantiles; i++) {
-      let timestamp = d3.quantile(vis.data, (i/(num_quantiles-1)), d => new Date(d.requested_datetime))
-      let date = (new Date(timestamp)).toLocaleDateString("en-US")
-      vis.called_date_dict[date] = requestDateColorScale(timestamp)
-    }
-
-    // Create dictionary for response time legend
-    vis.response_time_dict = {}
-    num_quantiles = 10
-    for (let i = 0; i < num_quantiles; i++) {
-      let time_diff = d => (new Date(d.updated_datetime)) - (new Date(d.requested_datetime))
-      let num_ms = d3.quantile(vis.data, (i/(num_quantiles-1)), time_diff)
-      let num_days = Math.floor(num_ms / (1000 * 60 * 60 * 24))
-      if (num_days < 0) {
-        continue
-      }
-      vis.response_time_dict[num_days] = responseTimeColorScale2(num_days)
-    }
-
-    //these are the city locations, displayed as a set of dots
-    vis.Dots = vis.svg.selectAll('circle')
-                    .data(vis.data) 
-                    .join('circle')
-                        .attr("fill", d => color_by_service_name(d.service_name)) 
-                        .attr("stroke", "black")
-                        //Leaflet has to take control of projecting points. Here we are feeding the latitude and longitude coordinates to
-                        //leaflet so that it can project them on the coordinates of the view. Notice, we have to reverse lat and lon.
-                        //Finally, the returned conversion produces an x and y point. We have to select the the desired one using .x or .y
-                        
-                        .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
-                        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
-                        .attr("r", 3)
-                        .on('mouseover', function(event,d) { //function to add mouseover event
-                            d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                              .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                              .attr("fill", "red") //change the fill
-                              .attr('r', 4); //change radius
-
-                            //create a tool tip
-                            d3.select('#tooltip')
-                                .style('opacity', 1)
-                                .style('z-index', 1000000)
-                                  // Format number with million and thousand separator
-                                .html(`<div class="tooltip-label">Call Date: ${d.requested_date}<br>
-                                Updated Date: ${d.updated_date}<br>
-                                Agency Responsible: ${d.agency_responsible}<br>
-                                Type of Call: ${d.service_name}<br>
-                                Descriptive Information: ${d.description}</div>`);
-
-                          })
-                        .on('mousemove', (event) => {
-                            //position the tooltip
-                            d3.select('#tooltip')
-                             .style('left', (event.pageX + 10) + 'px')   
-                              .style('top', (event.pageY + 10) + 'px');
-                         })              
-                        .on('mouseleave', function() {       
-                          d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                            .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                            .attr("fill", d => color_by_service_name(d.service_name)) //change the fill
-                            .attr('r', 3); //change radius
-            
-                          d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
-                        });
-
-    //handler here for updating the map, as you zoom in and out           
+    //handler here for updating the map, as you zoom in and out
     vis.theMap.on("zoomend", function(){
       vis.updateVis();
     });
@@ -344,6 +224,126 @@ class LeafletMap {
 
   updateVis() {
     let vis = this;
+    function color_by_service_name(sn) {
+      for (const [key, value] of Object.entries(vis.service_name_dict)) {
+        if (sn.toUpperCase().includes(key.toUpperCase())) {
+          return vis.service_name_dict[key];
+        }
+      }
+      return vis.service_name_dict["other"];
+    }
+
+    function color_by_agency(a) {
+      return vis.agency_dict[a]
+    }
+
+    var requestDateColorScale = d3.scaleSequential()
+      .interpolator(d3.interpolateGreys)
+      .domain(d3.extent(filtered_data, d => new Date(d.requested_datetime)));
+
+    var responseTimeColorScale = d3.scaleLog()
+      .range(["yellow", "yellow"])
+      //.domain([1, d3.max(filtered_data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
+      .domain([1, d3.max(filtered_data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
+
+    var responseTimeColorScale2 = d3.scaleLog()
+      .range(["orange", "red"])
+      //.domain([1, d3.max(filtered_data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
+      .domain([1, d3.max(filtered_data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
+
+    function color_by_request_date(rd) {
+      return requestDateColorScale(new Date(rd));
+    }
+
+    function color_by_response_time(t) {
+      //var responseTime = new Date(t.updated_datetime) - new Date(t.requested_datetime);
+      var responseTimeMs = Math.abs((new Date(t.updated_datetime)) - (new Date(t.requested_datetime)));
+      var responseTimeDays = Math.floor(responseTimeMs / (1000 * 60 * 60 * 24));
+      if(responseTimeDays == 0){
+        return responseTimeColorScale(responseTimeDays);
+      }
+      else{
+        //console.log("Dates:");
+        //console.log(new Date(t.updated_datetime));
+        //console.log(new Date(t.requested_datetime));
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        console.log("Response Time in Ms:");
+        console.log(responseTimeMs)
+        console.log("Response Time in Days:");
+        console.log(responseTimeDays);
+        return responseTimeColorScale2(responseTimeDays);
+      }
+
+    }
+
+    // Create dictionary for request date legend
+    vis.called_date_dict = {}
+    let num_quantiles = 8
+    for (let i = 0; i < num_quantiles; i++) {
+      let timestamp = d3.quantile(filtered_data, (i/(num_quantiles-1)), d => new Date(d.requested_datetime))
+      let date = (new Date(timestamp)).toLocaleDateString("en-US")
+      vis.called_date_dict[date] = requestDateColorScale(timestamp)
+    }
+
+    // Create dictionary for response time legend
+    vis.response_time_dict = {}
+    num_quantiles = 10
+    for (let i = 0; i < num_quantiles; i++) {
+      let time_diff = d => (new Date(d.updated_datetime)) - (new Date(d.requested_datetime))
+      let num_ms = d3.quantile(filtered_data, (i/(num_quantiles-1)), time_diff)
+      let num_days = Math.floor(num_ms / (1000 * 60 * 60 * 24))
+      if (num_days < 0) {
+        continue
+      }
+      vis.response_time_dict[num_days] = responseTimeColorScale2(num_days)
+    }
+
+    //these are the city locations, displayed as a set of dots
+    vis.Dots = vis.svg.selectAll('circle')
+                    .data(filtered_data)
+                    .join('circle')
+                        .attr("fill", d => color_by_service_name(d.service_name))
+                        .attr("stroke", "black")
+                        //Leaflet has to take control of projecting points. Here we are feeding the latitude and longitude coordinates to
+                        //leaflet so that it can project them on the coordinates of the view. Notice, we have to reverse lat and lon.
+                        //Finally, the returned conversion produces an x and y point. We have to select the the desired one using .x or .y
+
+                        .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
+                        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
+                        .attr("r", 3)
+                        .on('mouseover', function(event,d) { //function to add mouseover event
+                            d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                              .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                              .attr("fill", "red") //change the fill
+                              .attr('r', 4); //change radius
+
+                            //create a tool tip
+                            d3.select('#tooltip')
+                                .style('opacity', 1)
+                                .style('z-index', 1000000)
+                                  // Format number with million and thousand separator
+                                .html(`<div class="tooltip-label">Call Date: ${d.requested_date}<br>
+                                Updated Date: ${d.updated_date}<br>
+                                Agency Responsible: ${d.agency_responsible}<br>
+                                Type of Call: ${d.service_name}<br>
+                                Descriptive Information: ${d.description}</div>`);
+
+                          })
+                        .on('mousemove', (event) => {
+                            //position the tooltip
+                            d3.select('#tooltip')
+                             .style('left', (event.pageX + 10) + 'px')
+                              .style('top', (event.pageY + 10) + 'px');
+                         })
+                        .on('mouseleave', function() {
+                          d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                            .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                            .attr("fill", d => color_by_service_name(d.service_name)) //change the fill
+                            .attr('r', 3); //change radius
+
+                          d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+                        });
+
     console.log("Beginning updateVis.")
 
     //want to see how zoomed in you are? 
@@ -368,7 +368,6 @@ class LeafletMap {
 
 
   renderVis() {
-    let vis = this;
     console.log("Calling renderVis")
 
     //not using right now... 

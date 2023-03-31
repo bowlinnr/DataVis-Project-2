@@ -1,13 +1,18 @@
+let data, filtered_data;
 
+let weekdays, service_names, zipcodes, leafletMap;
 
 d3.dsv("|","data/cincy311_cleaned_2021.tsv")
-.then(data => {
-  leafletMap = new LeafletMap({ parentElement: '#map'}, data);
+.then(_data => {
 
-  data.sort(function(a, b) {
+  _data.sort(function(a, b) {
     return new Date(a['requested_datetime']) - new Date(b['requested_datetime']);
   })
-  
+
+  data = _data;
+  filtered_data = data;
+
+  leafletMap = new LeafletMap({ parentElement: '#map'}, data);
   timeline = new Timeline({ parentElement: '#timeline'}, data)
 
   // Translate number to day
@@ -37,7 +42,6 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
     },
     data
   );
-  weekdays.updateVis();
 
 
     // Dictionary to map colors to service names
@@ -81,8 +85,7 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
     },
     data
     );
-    service_names.updateVis();
-  
+
   // Zipcode set to determine which zipcodes are just Cincinnati
   let top_zipcodes = new Set([
     45205,
@@ -125,6 +128,24 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
   },
   data
   );
-  zipcodes.updateVis();
+
+  updateAll();
 
   }).catch(error => console.error(error));
+
+function filterData(xAxisLambda, value) {
+  filtered_data = data.filter((d) => xAxisLambda(d) == value);
+  updateAll();
+}
+
+function restoreData() {
+  filteredData = data;
+  updateAll();
+}
+
+function updateAll() {
+  weekdays.updateVis();
+  service_names.updateVis();
+  zipcodes.updateVis();
+  leafletMap.updateVis();
+}

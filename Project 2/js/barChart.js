@@ -120,7 +120,7 @@ class BarChart {
     let vis = this;
 
     const aggregatedDataMap = d3.rollups(
-      vis.data,
+      filtered_data,
       (v) => v.length,
       vis.xAxisLambda
     );
@@ -181,18 +181,19 @@ class BarChart {
       })
       .on("click", function (event, d) {
         d3.select(this).classed("active", true);
-        //filterData(vis.xAxisLambda, vis.xValue(d));
+        filterData(vis.xAxisLambda, vis.xValue(d));
       });
 
     vis.bars
       .transition()
-      .duration(1000)
+      .duration(500)
       .attr("class", "bar")
       .attr("x", (d) => vis.xScale(vis.xValue(d)))
       .attr("width", vis.xScale.bandwidth())
       .attr("height", (d) => vis.height - vis.yScale(vis.yValue(d)))
       .attr("y", (d) => vis.yScale(vis.yValue(d)))
       .attr("fill", vis.fillLambda ?? "#4682B4");
+
     vis.xAxisGroup.call(vis.xAxis);
     vis.yAxisGroup.call(vis.yAxis);
   }
