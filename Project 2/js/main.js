@@ -7,5 +7,6 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
   })
   
   timeline = new Timeline({ parentElement: '#timeline'}, data)
+  weekday = new Barchart({ parentElement: '#barchart'}, data)
   })
   .catch(error => console.error(error));
