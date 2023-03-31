@@ -134,12 +134,17 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
   }).catch(error => console.error(error));
 
 function filterData(xAxisLambda, value) {
+  old_data = filtered_data
   filtered_data = data.filter((d) => xAxisLambda(d) == value);
-  updateAll();
+  console.log(old_data)
+  console.log(filtered_data)
+  if (!arraysEqual(old_data, filtered_data)) {
+    updateAll();
+  }
 }
 
 function restoreData() {
-  filteredData = data;
+  filtered_data = data;
   updateAll();
 }
 
@@ -148,4 +153,14 @@ function updateAll() {
   service_names.updateVis();
   zipcodes.updateVis();
   leafletMap.updateVis();
+}
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }
