@@ -1,3 +1,7 @@
+html {
+  font-family: sans-serif;
+}
+
 #tooltip {
   position: absolute;
   opacity: 0;
@@ -23,6 +27,31 @@ path.line {
   height: 500px;
 }
 
+<<<<<<< HEAD
 #timeline {
   background-color: #30D5C8;
 }
+=======
+.legend {
+    background: white;
+    padding: 6px 6px;
+    line-height: 14px;
+    border-radius: 4px;
+    width: 160px;
+}
+
+.legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  float: left;
+  margin: 2px 4px 0 0;
+  outline-style: solid;
+  outline-width: 1px;
+}
+
+.legend h4 {
+  text-align: center;
+  margin: 0 4px 6px 4px;
+}
+>>>>>>> 318b6dc89b36ceb4b333276d2543a5070c42c3b3
