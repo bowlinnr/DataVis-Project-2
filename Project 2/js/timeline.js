@@ -120,7 +120,7 @@ class Timeline {
             .attr('transform', `translate(${vis.config.contextMargin.left},${vis.config.contextMargin.top})`);
 
         vis.contextAreaPath = vis.context.append('path')
-            .attr('class', 'chart-area');
+            .attr('class', 'chart-line');
 
         vis.xAxisContextG = vis.context.append('g')
             .attr('class', 'axis x-axis')
@@ -196,7 +196,7 @@ class Timeline {
         .join('path')
         .attr('class', 'line')
         .attr('stroke-width', 2)
-        .attr('d', vis.line2); 
+        .attr('d', vis.line); 
 
     vis.trackingArea
         .on('mouseenter', (event, d) => {
@@ -279,7 +279,12 @@ class Timeline {
     }
 
     // Redraw line and update x-axis labels in focus view
-    vis.chart.attr('d', vis.line);
+    vis.chart.selectAll(".line")
+        .data([vis.timelineData])
+        .join('path')
+        .attr('class', 'line')
+        .attr('stroke-width', 2)
+        .attr('d', vis.line); 
     vis.xAxisG.call(vis.xAxis);
   }
   
