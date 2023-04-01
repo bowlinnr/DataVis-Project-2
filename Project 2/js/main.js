@@ -1,8 +1,8 @@
 let data, filtered_data;
 
-let weekdays, service_names, zipcodes, leafletMap;
+let weekdays, service_names, zipcodes, leafletMap, response_time;
 
-d3.dsv("|","data/cincy311_cleaned_2021.tsv")
+d3.dsv("|","data/cincy311_cleaned_2021_bucketed.tsv")
 .then(_data => {
 
   _data.sort(function(a, b) {
@@ -129,6 +129,27 @@ d3.dsv("|","data/cincy311_cleaned_2021.tsv")
   data
   );
 
+  response_time = new BarChart(
+    {
+      parentElement: "#responsetime",
+      xAxisLabel: "Response Time (days)",
+      yAxisLabel: "Count",
+      title: "Response Time",
+      xAxisLambda: (d) => d.days_bucket,
+      logScale: false,
+      containerWidth: 600,
+      orderedKeys: [
+        "0-1",
+        "1-2",
+        "2-5",
+        "5-10",
+        "10-20",
+        "21+",
+      ],
+    },
+    data
+  );
+
   updateAll();
 
   }).catch(error => console.error(error));
@@ -153,6 +174,7 @@ function updateAll() {
   service_names.updateVis();
   zipcodes.updateVis();
   leafletMap.updateVis();
+  response_time.updateVis();
 }
 
 function arraysEqual(a, b) {
