@@ -49,6 +49,7 @@ class Timeline {
 
         vis.xAxisContext = d3.axisBottom(vis.xScaleContext)
             .ticks(20)
+            .tickFormat(d3.timeFormat("%b"))
             .tickSizeOuter(0)
             .tickPadding(10);
   
@@ -314,5 +315,4 @@ class Timeline {
     vis.xAxisG.call(vis.xAxis);
   }
   
-}       
-  
+}
