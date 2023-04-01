@@ -40,7 +40,7 @@ class Timeline {
         
         vis.yScaleContext = d3.scaleLinear()
             .domain(d3.extent(vis.timelineData, vis.yValue))
-            .range([vis.contextHeight, 0]); 
+            .range([vis.config.contextHeight, 0]); 
         
         vis.xAxis = d3.axisBottom(vis.xScale)
             .ticks(20)
@@ -131,7 +131,7 @@ class Timeline {
 
         // Initialize brush component
         vis.brush = d3.brushX()
-            .extent([[0, 0], [vis.config.containerWidth, vis.config.contextHeight]])
+            .extent([[0, 0], [vis.width, vis.config.contextHeight]])
             .on('brush', function({selection}) {
             if (selection) vis.brushed(selection);
             })
@@ -161,10 +161,10 @@ class Timeline {
         .x(d => vis.xScale(vis.xValue(d)))
         .y(d => vis.yScale(vis.yValue(d)));
 
-    vis.area = d3.area()
-        .x(d => vis.xScaleContext(vis.xValue(d)))
-        .y1(d => vis.yScaleContext(vis.yValue(d)))
-        .y0(vis.config.contextHeight);
+    // vis.area = d3.area()
+    //     .x(d => vis.xScaleContext(vis.xValue(d)))
+    //     .y1(d => vis.yScaleContext(vis.yValue(d)))
+    //     .y0(vis.config.contextHeight);
 
     vis.line2 = d3.line()
         .x(d => vis.xScaleContext(vis.xValue(d)))
@@ -189,14 +189,14 @@ class Timeline {
         .attr('stroke-width', 2)
         .attr('d', vis.line); 
 
-     vis.contextAreaPath
-         //.data([vis.timelineData])
-         //.attr('d', vis.area);
-        .data([vis.timelineData])
-        .join('path')
-        .attr('class', 'line')
-        .attr('stroke-width', 2)
-        .attr('d', vis.line); 
+    vis.contextAreaPath
+        //.data([vis.timelineData])
+        //.attr('d', vis.area);
+       .data([vis.timelineData])
+       .join('path')
+       .attr('class', 'line')
+       .attr('stroke-width', 2)
+       .attr('d', vis.line2); 
 
     vis.trackingArea
         .on('mouseenter', (event, d) => {
@@ -232,7 +232,7 @@ class Timeline {
 
     vis.xAxisContextG.call(vis.xAxisContext);
 
-    const defaultBrushSelection = [vis.xScale(new Date('2021-01-01')), vis.xScaleContext.range()[1]];
+    const defaultBrushSelection = [vis.xScale(new Date('2021-07-07')), vis.xScaleContext.range()[1]];
     vis.brushG
         .call(vis.brush)
         .call(vis.brush.move, defaultBrushSelection);
@@ -279,12 +279,30 @@ class Timeline {
     }
 
     // Redraw line and update x-axis labels in focus view
+    // vis.chart.attr('d', vis.line);
     vis.chart.selectAll(".line")
         .data([vis.timelineData])
         .join('path')
         .attr('class', 'line')
         .attr('stroke-width', 2)
-        .attr('d', vis.line); 
+        .attr('d', vis.line);
+
+    vis.chart.select('.x-axis')
+        .call(vis.xAxis)
+        .selectAll("text")  
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-45)");
+
+    vis.contextAreaPath.select('.x-axis')
+        .call(vis.xAxisContext)
+        .selectAll("text")  
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-45)"); 
+
     vis.xAxisG.call(vis.xAxis);
   }
   

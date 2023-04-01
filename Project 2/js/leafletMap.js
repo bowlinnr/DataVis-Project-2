@@ -12,6 +12,59 @@ class LeafletMap {
     this.data = _data;
     this.initVis();
   }
+
+  color_by_service_name(sn) {
+    for (const [key, value] of Object.entries(this.service_name_dict)) {
+      if (sn.toUpperCase().includes(key.toUpperCase())) {
+        return this.service_name_dict[key];
+      }
+    }
+    return this.service_name_dict["other"];
+  }
+
+  color_by_agency(a) {
+    return this.agency_dict[a]
+  }
+
+  color_by_request_date(rd) {
+    return this.requestDateColorScale(new Date(rd));
+  }
+
+  color_by_response_time(t) {
+    //var responseTime = new Date(t.updated_datetime) - new Date(t.requested_datetime);
+    var responseTimeMs = Math.abs((new Date(t.updated_datetime)) - (new Date(t.requested_datetime)));
+    var responseTimeDays = Math.floor(responseTimeMs / (1000 * 60 * 60 * 24));
+    if(responseTimeDays == 0){
+      return this.responseTimeColorScale(responseTimeDays);
+    }
+    else{
+      //console.log("Dates:");
+      //console.log(new Date(t.updated_datetime));
+      //console.log(new Date(t.requested_datetime));
+      //console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+      //console.log("Response Time in Ms:");
+      //console.log(responseTimeMs)
+      //console.log("Response Time in Days:");
+      //console.log(responseTimeDays);
+      return this.responseTimeColorScale2(responseTimeDays);
+    }
+  }
+
+  // Function that recolors the legend when the coloring is changed
+  recolor_legend(title, dict) {
+    this.legend.remove(this.theMap)
+    this.legend.onAdd = function(map) {
+        var div = L.DomUtil.create("div", "legend");
+        div.innerHTML += `<h4>${title}</h4>`;
+        for (const [key, value] of Object.entries(dict)) {
+          var name = key.charAt(0).toUpperCase() + key.slice(1);
+          div.innerHTML += `<i style="background: ${value}"></i><span>${name}</span><br>`;
+        }
+        return div;
+    };
+    this.legend.addTo(this.theMap);
+  }
+
   
   /**
    * We initialize scales/axes and append static elements, such as axis titles.
@@ -20,6 +73,9 @@ class LeafletMap {
     let vis = this;
     console.log("Beginning initVis");
 
+
+    // Create a legend
+    vis.legend = L.control({ position: "topright" });
 
     //ESRI
     vis.esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
@@ -122,65 +178,103 @@ class LeafletMap {
         vis.theMap.addLayer(vis.base_layer);
       });
 
-    function color_by_service_name(sn) {
-      for (const [key, value] of Object.entries(vis.service_name_dict)) {
-        if (sn.toUpperCase().includes(key.toUpperCase())) {
-          return vis.service_name_dict[key];
+    //handler here for updating the map, as you zoom in and out
+    vis.theMap.on("zoomend", function(){
+      vis.updateVis();
+    });
+
+    // Color by
+    d3.select("#colorBy")
+    .style("position", "absolute")
+    .style("left", "250px")
+    .style("top", "515px")
+    .append('label')
+    .text('Color By: ');
+
+    vis.colorBySelect = d3.select('#colorBy')
+      .append('select')
+      .on('change', function () {
+        if (d3.select(this).property('value') == "Service Name") {
+          vis.Dots
+            .attr('fill', d => vis.color_by_service_name(d.service_name))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => vis.color_by_service_name(d.service_name)) //change the fill
+                .attr('r', 3); //change radius
+
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+          vis.recolor_legend("Service Name", vis.service_name_dict)
         }
-      }
-      return vis.service_name_dict["other"];
-    }
+        else if (d3.select(this).property('value') == "Agency") {
+          vis.Dots
+            .attr('fill', d => vis.color_by_agency(d.agency_responsible))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => vis.color_by_agency(d.agency_responsible)) //change the fill
+                .attr('r', 3); //change radius
 
-    function color_by_agency(a) {
-      return vis.agency_dict[a]
-    }
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+          vis.recolor_legend("Agency", vis.agency_dict)
+        }
+        else if (d3.select(this).property('value') == "Called Date") {
+          vis.Dots
+            .attr('fill', d => vis.color_by_request_date(d.requested_datetime))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => vis.color_by_request_date(d.requested_datetime)) //change the fill
+                .attr('r', 3); //change radius
 
-    var requestDateColorScale = d3.scaleSequential()
-      .interpolator(d3.interpolateGreys) 
-      .domain(d3.extent(vis.data, d => new Date(d.requested_datetime)));
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+          vis.recolor_legend("Called Date", vis.called_date_dict)
+        }
+        else {
+          vis.Dots
+            .attr('fill', d => vis.color_by_response_time(d))
+            .on('mouseleave', function() {
+              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                .attr("fill", d => vis.color_by_response_time(d)) //change the fill
+                .attr('r', 3); //change radius
 
-    var responseTimeColorScale = d3.scaleLog()
+              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+            })
+          vis.recolor_legend("Response Time (days)", vis.response_time_dict)
+        }
+
+
+      });
+  }
+
+  updateVis() {
+    let vis = this;
+    vis.requestDateColorScale = d3.scaleSequential()
+      .interpolator(d3.interpolateGreys)
+      .domain(d3.extent(filtered_data, d => new Date(d.requested_datetime)));
+
+    vis.responseTimeColorScale = d3.scaleLog()
       .range(["yellow", "yellow"])
-      //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
-      .domain([1, d3.max(vis.data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
+      //.domain([1, d3.max(filtered_data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
+      .domain([1, d3.max(filtered_data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
 
-    var responseTimeColorScale2 = d3.scaleLog()
+    vis.responseTimeColorScale2 = d3.scaleLog()
       .range(["orange", "red"])
-      //.domain([1, d3.max(vis.data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
-      .domain([1, d3.max(vis.data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
+      //.domain([1, d3.max(filtered_data, d => new Date(d.updated_datetime) - new Date(d.requested_datetime))]);
+      .domain([1, d3.max(filtered_data, d => Math.floor(Math.abs((new Date(d.updated_datetime)) - (new Date(d.requested_datetime))) / (1000 * 60 * 60 * 24)))]);
 
-    function color_by_request_date(rd) {
-      return requestDateColorScale(new Date(rd));
-    }
-
-    function color_by_response_time(t) {
-      //var responseTime = new Date(t.updated_datetime) - new Date(t.requested_datetime);
-      var responseTimeMs = Math.abs((new Date(t.updated_datetime)) - (new Date(t.requested_datetime)));
-      var responseTimeDays = Math.floor(responseTimeMs / (1000 * 60 * 60 * 24));
-      if(responseTimeDays == 0){
-        return responseTimeColorScale(responseTimeDays);
-      }
-      else{
-        //console.log("Dates:");
-        //console.log(new Date(t.updated_datetime));
-        //console.log(new Date(t.requested_datetime));
-        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        console.log("Response Time in Ms:");
-        console.log(responseTimeMs)
-        console.log("Response Time in Days:");
-        console.log(responseTimeDays);
-        return responseTimeColorScale2(responseTimeDays);
-      }
-      
-    }
 
     // Create dictionary for request date legend
     vis.called_date_dict = {}
     let num_quantiles = 8
     for (let i = 0; i < num_quantiles; i++) {
-      let timestamp = d3.quantile(vis.data, (i/(num_quantiles-1)), d => new Date(d.requested_datetime))
+      let timestamp = d3.quantile(filtered_data, (i/(num_quantiles-1)), d => new Date(d.requested_datetime))
       let date = (new Date(timestamp)).toLocaleDateString("en-US")
-      vis.called_date_dict[date] = requestDateColorScale(timestamp)
+      vis.called_date_dict[date] = vis.requestDateColorScale(timestamp)
     }
 
     // Create dictionary for response time legend
@@ -188,26 +282,26 @@ class LeafletMap {
     num_quantiles = 10
     for (let i = 0; i < num_quantiles; i++) {
       let time_diff = d => (new Date(d.updated_datetime)) - (new Date(d.requested_datetime))
-      let num_ms = d3.quantile(vis.data, (i/(num_quantiles-1)), time_diff)
+      let num_ms = d3.quantile(filtered_data, (i/(num_quantiles-1)), time_diff)
       let num_days = Math.floor(num_ms / (1000 * 60 * 60 * 24))
       if (num_days < 0) {
         continue
       }
-      vis.response_time_dict[num_days] = responseTimeColorScale2(num_days)
+      vis.response_time_dict[num_days] = vis.responseTimeColorScale2(num_days)
     }
 
     //these are the city locations, displayed as a set of dots
     vis.Dots = vis.svg.selectAll('circle')
-                    .data(vis.data) 
+                    .data(filtered_data)
                     .join('circle')
-                        .attr("fill", d => color_by_service_name(d.service_name)) 
+                        .attr("fill", d => vis.color_by_service_name(d.service_name))
                         .attr("stroke", "black")
                         //Leaflet has to take control of projecting points. Here we are feeding the latitude and longitude coordinates to
                         //leaflet so that it can project them on the coordinates of the view. Notice, we have to reverse lat and lon.
                         //Finally, the returned conversion produces an x and y point. We have to select the the desired one using .x or .y
-                        
+
                         .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
-                        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
+                        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
                         .attr("r", 3)
                         .on('mouseover', function(event,d) { //function to add mouseover event
                             d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
@@ -230,121 +324,29 @@ class LeafletMap {
                         .on('mousemove', (event) => {
                             //position the tooltip
                             d3.select('#tooltip')
-                             .style('left', (event.pageX + 10) + 'px')   
+                             .style('left', (event.pageX + 10) + 'px')
                               .style('top', (event.pageY + 10) + 'px');
-                         })              
-                        .on('mouseleave', function() {       
+                         })
+                        .on('mouseleave', function() {
                           d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                             .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                            .attr("fill", d => color_by_service_name(d.service_name)) //change the fill
+                            .attr("fill", d => vis.color_by_service_name(d.service_name)) //change the fill
                             .attr('r', 3); //change radius
-            
+
                           d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
                         });
 
-    //handler here for updating the map, as you zoom in and out           
-    vis.theMap.on("zoomend", function(){
-      vis.updateVis();
-    });
-
-    // Color by
-    d3.select("#colorBy")
-    .style("position", "absolute")
-    .style("left", "250px")
-    .style("top", "515px")
-    .append('label')
-    .text('Color By: ');
-
-    // Create a legend
-    vis.legend = L.control({ position: "topright" });
-
-    // Function that recolors the legend when the coloring is changed
-    function recolor_legend(title, dict) {
-      vis.legend.remove(vis.theMap)
-      vis.legend.onAdd = function(map) {
-          var div = L.DomUtil.create("div", "legend");
-          div.innerHTML += `<h4>${title}</h4>`;
-          for (const [key, value] of Object.entries(dict)) {
-            var name = key.charAt(0).toUpperCase() + key.slice(1);
-            div.innerHTML += `<i style="background: ${value}"></i><span>${name}</span><br>`;
-          }
-          return div;
-      };
-      vis.legend.addTo(vis.theMap);
-    }
-
-    recolor_legend("Service Name", vis.service_name_dict)
-
-    vis.colorBySelect = d3.select('#colorBy')
-      .append('select')
-      .on('change', function () {
-        if (d3.select(this).property('value') == "Service Name") {
-          vis.Dots
-            .attr('fill', d => color_by_service_name(d.service_name))
-            .on('mouseleave', function() {
-              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                .attr("fill", d => color_by_service_name(d.service_name)) //change the fill
-                .attr('r', 3); //change radius
-
-              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
-            })
-          recolor_legend("Service Name", vis.service_name_dict)
-        }
-        else if (d3.select(this).property('value') == "Agency") {
-          vis.Dots
-            .attr('fill', d => color_by_agency(d.agency_responsible))
-            .on('mouseleave', function() {
-              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                .attr("fill", d => color_by_agency(d.agency_responsible)) //change the fill
-                .attr('r', 3); //change radius
-
-              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
-            })
-          recolor_legend("Agency", vis.agency_dict)
-        }
-        else if (d3.select(this).property('value') == "Called Date") {
-          vis.Dots
-            .attr('fill', d => color_by_request_date(d.requested_datetime))
-            .on('mouseleave', function() {
-              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                .attr("fill", d => color_by_request_date(d.requested_datetime)) //change the fill
-                .attr('r', 3); //change radius
-
-              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
-            })
-          recolor_legend("Called Date", vis.called_date_dict)
-        }
-        else {
-          vis.Dots
-            .attr('fill', d => color_by_response_time(d))
-            .on('mouseleave', function() {
-              d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
-                .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                .attr("fill", d => color_by_response_time(d)) //change the fill
-                .attr('r', 3); //change radius
-
-              d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
-            })
-          recolor_legend("Response Time (days)", vis.response_time_dict)
-        }
 
 
-      });
-    
+    vis.recolor_legend("Service Name", vis.service_name_dict)
+
+
     var options = ["Service Name", "Agency", "Called Date", "Response Time"]
     vis.colorBySelect.selectAll('option')
       .data(options)
       .enter()
       .append('option')
       .text(d => d);
-  }
-
-  updateVis() {
-    let vis = this;
-    console.log("Beginning updateVis.")
 
     //want to see how zoomed in you are? 
     // console.log(vis.map.getZoom()); //how zoomed am I
@@ -364,11 +366,11 @@ class LeafletMap {
       .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
       .attr("r", vis.radiusSize);
     console.log("Ending updateVis");
+    vis.colorBySelect.property('value', 'Service Name');
   }
 
 
   renderVis() {
-    let vis = this;
     console.log("Calling renderVis")
 
     //not using right now... 

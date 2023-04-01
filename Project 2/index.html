@@ -1,35 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Project 2: Who you gonna call? 3-1-1!</title> 
-    <link rel="icon" href="data:;base64,iVBORwOKGO=" />
+    <title>Project 2: Who you gonna call? 3-1-1!</title>
+    <link rel="icon" href="data:;base64,iVBORwOKGO=">
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    
     <div id="map-container">
         <div id="map"></div>
-    </div>
-    <svg id="timeline"></svg>
-    <svg id="weekdays"></svg>
+    </div><svg id="timeline"></svg> <svg id="weekdays"></svg><br>
+    <button onclick="restoreData()">Restore Data</button>
     <div id="zipcodes-container">
-        <svg id="zipcodes"></svg>
-        <a href="https://zipdatamaps.com/zipcodes-cincinnati-oh" id="zipcode-link">Map of Cincinnati Zipcodes</a>
-    </div>
+        <svg id="zipcodes"></svg> <a href=
+        "https://zipdatamaps.com/zipcodes-cincinnati-oh" id=
+        "zipcode-link">Map of Cincinnati Zipcodes</a>
+    </div><br>
     <svg id="servicenames"></svg>
-
     <script src="js/d3.v6.min.js"></script>
     <script src="js/leaflet.js"></script>
-
     <script src="js/main.js"></script>
     <script src="js/leafletMap.js"></script>
     <script src="js/timeline.js"></script>
     <script src="js/barChart.js"></script>
     <div id="tooltip"></div>
     <div id="barchart-tooltip"></div>
-
     <div id="colorBy"></div>
-
 </body>
 </html>
