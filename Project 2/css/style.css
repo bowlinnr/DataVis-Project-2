@@ -83,3 +83,9 @@ path.line {
   top: 570px;
   left: 830px;
 }
+
+#servicenames {
+  position: absolute;
+  top: 950px;
+  left: 0px;
+}
