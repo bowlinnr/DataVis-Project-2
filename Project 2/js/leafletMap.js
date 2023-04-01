@@ -155,10 +155,11 @@ class LeafletMap {
     vis.bckgrnd_toggle = d3.select("#map-container")
       .append("button")
       .text("Toggle Map Background")
-      .style("position", "absolute")
-      .style("z-index", "1000")
-      .style("left", "260px")
-      .style("top", "540px")
+      // .style("position", "absolute")
+      // .style("z-index", "1000")
+      // .style("left", "260px")
+      // .style("top", "540px")
+      .attr("id", "background-toggle")
       .on('click',() => {
         if (vis.base_layer.options.id == 'esri-image') {
           vis.base_layer = L.tileLayer(vis.stUrl, {
@@ -185,9 +186,9 @@ class LeafletMap {
 
     // Color by
     d3.select("#colorBy")
-    .style("position", "absolute")
-    .style("left", "250px")
-    .style("top", "515px")
+    //.style("position", "absolute")
+    //.style("left", "250px")
+    //.style("top", "515px")
     .append('label')
     .text('Color By: ');
 

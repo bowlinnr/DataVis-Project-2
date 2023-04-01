@@ -38,7 +38,7 @@ d3.dsv("|","data/cincy311_cleaned_2021_bucketed.tsv")
       },
       logScale: false,
       orderedKeys: Object.values(day_to_text),
-      containerWidth: 480,
+      containerWidth: 500,
     },
     data
   );
@@ -81,7 +81,7 @@ d3.dsv("|","data/cincy311_cleaned_2021_bucketed.tsv")
       },
       logScale: false,
       tiltTicks: true,
-      containerWidth: 660
+      containerWidth: 500
     },
     data
     );
@@ -123,7 +123,7 @@ d3.dsv("|","data/cincy311_cleaned_2021_bucketed.tsv")
     },
     logScale: false,
     tiltTicks: true,
-    containerWidth: 660,
+    containerWidth: 500,
     no_data_key: "Other",
   },
   data

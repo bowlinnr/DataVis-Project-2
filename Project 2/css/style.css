@@ -24,7 +24,9 @@ path.line {
 }
 
 #map {
-  width: 700px;
+  position: absolute;
+  left: 350px;
+  width: 1000px;
   height: 500px;
 }
 
@@ -51,6 +53,8 @@ text-align: center;
 margin: 0 4px 6px 4px;
 }
 
+
+
 #barchart-tooltip {
   position: absolute;
   display: none;
@@ -69,8 +73,8 @@ margin: 0 4px 6px 4px;
 
 #zipcodes-container {
   position: absolute;
-  top: 570px;
-  left: 0px;
+  top: 1250px;
+  left: 550px;
 }
 
 #zipcode-link {
@@ -81,12 +85,46 @@ margin: 0 4px 6px 4px;
 
 #weekdays {
   position: absolute;
-  top: 570px;
-  left: 830px;
+  top: 1250px;
+  left: 1100px;
 }
 
 #servicenames {
   position: absolute;
-  top: 950px;
+  top: 1250px;
   left: 0px;
 }
+
+#timeline {
+  position: absolute;
+  left: -300px;
+  top: 1200px;
+}
+
+#colorBy {
+  position: absolute;
+  left: 800px;
+  top: 630px;
+}
+
+#background-toggle {
+  /*.style("position", "absolute")
+  .style("z-index", "1000")
+  .style("left", "260px")
+  .style("top", "540px")*/
+  position: absolute;
+  left: 815px;
+  top: 660px;
+  z-index: 1000;
+}
+
+#restore {
+  position: absolute;
+  left: 50px;
+  top: 1230px;
+  z-index: 1000;
+} 
+
+h1 {text-align: center}
+h2 {text-align: center}
+h3 {text-align: center}
