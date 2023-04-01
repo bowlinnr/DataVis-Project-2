@@ -56,7 +56,7 @@ class Timeline {
             .ticks(6)
             .tickSizeOuter(0)
             .tickPadding(10);
-        
+
         // CHANGE POSITION OF TIMELINE HERE
         vis.svg = d3.select(vis.config.parentElement)
             .attr('width', vis.config.containerWidth)
@@ -137,8 +137,8 @@ class Timeline {
             })
             .on('end', function({selection}) {
             if (!selection) vis.brushed(null);
-            });
-
+                });
+        
         vis.updateVis(); 
       }
   
@@ -170,8 +170,10 @@ class Timeline {
         .x(d => vis.xScaleContext(vis.xValue(d)))
         .y(d => vis.yScaleContext(vis.yValue(d)));
 
-    // vis.xScaleContext.domain(vis.xScale.domain());
-    // vis.yScaleContext.domain(vis.yScale.domain());
+    vis.xScale.domain(d3.extent(vis.timelineData, vis.xValue));
+    vis.yScale.domain(d3.extent(vis.timelineData, vis.yValue));
+    vis.xScaleContext.domain(vis.xScale.domain());
+    vis.yScaleContext.domain(vis.yScale.domain());
         
     vis.bisectDate = d3.bisector(vis.xValue).left;
 
@@ -229,7 +231,6 @@ class Timeline {
     
     vis.xAxisG.call(vis.xAxis);
     vis.yAxisG.call(vis.yAxis);
-
     vis.xAxisContextG.call(vis.xAxisContext);
 
     const defaultBrushSelection = [vis.xScale(new Date('2021-07-07')), vis.xScaleContext.range()[1]];
@@ -277,11 +278,12 @@ class Timeline {
       // Reset x-scale of the focus view (full time period)
       vis.xScale.domain(vis.xScaleContext.domain());
     }
+    const filteredData = vis.timelineData.filter(d => d.date >= vis.xScale.domain()[0] && d.date <= vis.xScale.domain()[1]);
 
     // Redraw line and update x-axis labels in focus view
     // vis.chart.attr('d', vis.line);
     vis.chart.selectAll(".line")
-        .data([vis.timelineData])
+        .data([filteredData])
         .join('path')
         .attr('class', 'line')
         .attr('stroke-width', 2)
@@ -301,7 +303,13 @@ class Timeline {
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)"); 
+        .attr("transform", "rotate(-45)");
+    
+    vis.xAxis = d3.axisBottom(vis.xScale)
+        .ticks(20)
+        .tickSizeOuter(0)
+        .tickPadding(10);
+
 
     vis.xAxisG.call(vis.xAxis);
   }
