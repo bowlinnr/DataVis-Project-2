@@ -73,7 +73,7 @@ margin: 0 4px 6px 4px;
 
 #zipcodes-container {
   position: absolute;
-  top: 1100px;
+  top: 1250px;
   left: 550px;
 }
 
@@ -85,26 +85,26 @@ margin: 0 4px 6px 4px;
 
 #weekdays {
   position: absolute;
-  top: 1100px;
+  top: 1250px;
   left: 1100px;
 }
 
 #servicenames {
   position: absolute;
-  top: 1100px;
+  top: 1250px;
   left: 0px;
 }
 
 #timeline {
   position: absolute;
   left: -300px;
-  top: 1100px;
+  top: 1200px;
 }
 
 #colorBy {
   position: absolute;
   left: 800px;
-  top: 520px;
+  top: 630px;
 }
 
 #background-toggle {
@@ -114,9 +114,16 @@ margin: 0 4px 6px 4px;
   .style("top", "540px")*/
   position: absolute;
   left: 815px;
-  top: 550px;
+  top: 660px;
   z-index: 1000;
 }
+
+#restore {
+  position: absolute;
+  left: 50px;
+  top: 1230px;
+  z-index: 1000;
+} 
 
 h1 {text-align: center}
 h2 {text-align: center}
